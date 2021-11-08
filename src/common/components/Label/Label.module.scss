@@ -1,0 +1,13 @@
+.label {
+    font-size: 14px;
+    opacity: 1;
+    font-weight: 600;
+    vertical-align: middle;
+    display: inline-block;
+
+    color: #909dae;
+
+    &.disabled {
+        opacity: 0.4;
+    }
+}
