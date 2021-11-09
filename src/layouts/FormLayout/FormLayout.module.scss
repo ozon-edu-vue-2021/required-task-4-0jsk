@@ -1,8 +1,61 @@
 .wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+
     padding: 16px;
 
     width: 1000px;
 
-    border: 2px solid #ccc;
+    border: 2px solid $gray-400;
     border-radius: 5px;
 }
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.field {
+    display: grid;
+    grid-template-rows: min-content 1fr;
+    row-gap: 10px;
+
+    & .label {
+      color: $gray;
+    }
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 20px;
+
+    &.birthday {
+        grid-template-columns: 1.5fr 1fr 1fr;
+    }
+
+    &.full {
+        grid-template-columns: 1fr;
+    }
+
+    &.partial {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.sub {
+    font-size: 18px;
+}
+
+.description {
+    margin-top: 5px;
+    font-size: 14px;
+    color: $gray;
+}
+
+.submit {
+    align-self: flex-end;
+}
+

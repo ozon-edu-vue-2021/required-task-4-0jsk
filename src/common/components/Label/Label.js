@@ -8,6 +8,7 @@ const props = {
   },
 };
 
+// TODO: add htmlFor
 export const Label = {
   name: "Label",
   mixins: [injectFormContextMixin],

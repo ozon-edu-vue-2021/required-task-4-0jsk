@@ -1,11 +1,9 @@
 .label {
-    font-size: 14px;
+    font-size: 16px;
     opacity: 1;
     font-weight: 600;
     vertical-align: middle;
     display: inline-block;
-
-    color: $gray;
 
     &.disabled {
         opacity: 0.4;
