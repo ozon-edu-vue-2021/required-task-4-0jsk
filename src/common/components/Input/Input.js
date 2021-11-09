@@ -14,6 +14,7 @@ const props = {
     type: [String, Number],
     default: undefined,
   },
+  placeholder: String,
 };
 
 export const Input = {
@@ -38,6 +39,7 @@ export const Input = {
           readonly: this.formControl.readonly,
           disabled: this.formControl.disabled,
           required: this.formControl.required,
+          placeholder: this.placeholder,
           "aria-invalid": this.formControl.invalid,
         },
         on: {
