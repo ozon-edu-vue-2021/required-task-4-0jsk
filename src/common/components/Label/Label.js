@@ -18,7 +18,7 @@ export const Label = {
       {
         class: [styles.label, { [styles.disabled]: this.formControl.disabled }],
       },
-      [`${this.title}${this.formControl.required ? "*" : ""}`]
+      this.title
     );
   },
 };
