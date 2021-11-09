@@ -1,14 +1,16 @@
 import { formControlProps } from "@/common/utils/Form";
 
+const props = {
+  ...formControlProps,
+  as: {
+    type: String,
+    default: "div",
+  },
+};
+
 export const FormControl = {
   name: "FormControl",
-  props: {
-    ...formControlProps,
-    as: {
-      type: String,
-      default: "div",
-    },
-  },
+  props,
   inject: {
     $FormContext: {
       default: null,

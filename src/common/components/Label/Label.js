@@ -1,25 +1,17 @@
 import styles from "./Label.module.scss";
-import { formControlProps } from "@/common/utils/Form";
+import { injectFormContextMixin } from "@/common/mixins";
+
+const props = {
+  title: {
+    type: String,
+    required: true,
+  },
+};
 
 export const Label = {
   name: "Label",
-  props: {
-    ...formControlProps,
-    title: {
-      type: String,
-      required: true,
-    },
-  },
-  inject: {
-    $FormContext: {
-      default: null,
-    },
-  },
-  computed: {
-    formControl() {
-      return this.$FormContext?.() ?? this.$props;
-    },
-  },
+  mixins: [injectFormContextMixin],
+  props,
   render(h) {
     return h(
       "label",
