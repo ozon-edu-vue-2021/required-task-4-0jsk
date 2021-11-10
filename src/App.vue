@@ -9,8 +9,9 @@
               <v-text-field
                 label="Фамилия"
                 required
-                @focus="clearRules('lastname')"
+                ref="lastname"
                 :rules="rules.lastname"
+                @focus="clearRules('lastname')"
                 v-model="lastname"
               />
             </v-col>
@@ -18,8 +19,9 @@
               <v-text-field
                 label="Имя"
                 required
-                @focus="clearRules('firstname')"
+                ref="firstname"
                 :rules="rules.firstname"
+                @focus="clearRules('firstname')"
                 v-model="firstname"
               />
             </v-col>
@@ -27,9 +29,10 @@
               <v-text-field
                 label="Отчество"
                 required
+                ref="patronymic"
+                :rules="rules.patronymic"
                 @focus="clearRules('patronymic')"
                 v-model="patronymic"
-                :rules="rules.patronymic"
               />
             </v-col>
           </v-row>
@@ -40,6 +43,7 @@
                 v-mask="'##.##.####'"
                 placeholder="дд.мм.гггг"
                 required
+                ref="birthday"
                 @focus="clearRules('birthday')"
                 :rules="rules.birthday"
                 v-model="birthday"
@@ -51,6 +55,7 @@
               <v-text-field
                 label="E-mail"
                 required
+                ref="email"
                 @focus="clearRules('email')"
                 v-model="email"
                 :rules="rules.email"
@@ -72,6 +77,7 @@
               <v-autocomplete
                 label="Гражданство"
                 :rules="rules.required"
+                ref="citizenship"
                 @change="(v) => (citizenship = getCitizenshipOption(v))"
                 :value="citizenship"
                 no-filter
@@ -80,18 +86,12 @@
               />
             </v-col>
           </v-row>
-          <v-row
-            v-if="
-              Boolean(citizenship) &&
-              Boolean(citizenship.value) &&
-              citizenship.value.id === 8604
-            "
-            class="mb-4"
-          >
+          <v-row v-if="!showForeignPassportInfo" class="mb-4">
             <v-col cols="4">
               <v-text-field
                 label="Серия паспорта"
                 required
+                ref="code"
                 @focus="clearRules('code')"
                 :rules="rules.code"
                 v-model="passport.code"
@@ -101,6 +101,7 @@
               <v-text-field
                 label="Номер паспорта"
                 required
+                ref="number"
                 @focus="clearRules('number')"
                 :rules="rules.number"
                 v-model="passport.number"
@@ -113,11 +114,12 @@
                 v-mask="'##.##.####'"
                 placeholder="дд.мм.гггг"
                 required
+                ref="date"
                 v-model="passport.date"
               />
             </v-col>
           </v-row>
-          <div v-else class="mb-4">
+          <div v-show="showForeignPassportInfo" class="mb-4">
             <v-row>
               <v-col cols="6">
                 <v-text-field
@@ -125,7 +127,8 @@
                   @focus="clearRules('latinLastname')"
                   :rules="rules.latinLastname"
                   required
-                  v-model="additional.firstname"
+                  ref="latinLastname"
+                  v-model="additional.lastname"
                 />
               </v-col>
               <v-col cols="6">
@@ -134,7 +137,8 @@
                   @focus="clearRules('latinFirstname')"
                   :rules="rules.latinFirstname"
                   required
-                  v-model="additional.lastname"
+                  ref="latinFirstname"
+                  v-model="additional.latinFirstname"
                 />
               </v-col>
             </v-row>
@@ -149,6 +153,7 @@
                   @focus="clearRules('number')"
                   :rules="rules.number"
                   required
+                  ref="number"
                   v-model="passport.number"
                 />
               </v-col>
@@ -159,6 +164,7 @@
                   :rules="rules.required"
                   v-model="passport.country"
                   :items="this.countriesOptions"
+                  ref="country"
                 />
               </v-col>
               <v-col cols="4">
@@ -168,6 +174,7 @@
                   :rules="rules.required"
                   v-model="passport.type"
                   :items="this.passportTypesOptions"
+                  ref="type"
                 />
               </v-col>
             </v-row>
@@ -186,6 +193,7 @@
               <v-text-field
                 label="Фамилия"
                 :rules="rules.required"
+                ref="changed.lastname"
                 required
                 v-model="changed.lastname"
               />
@@ -195,6 +203,7 @@
                 label="Имя"
                 required
                 :rules="rules.required"
+                ref="changed.firstname"
                 v-model="changed.firstname"
               />
             </v-col>
@@ -274,6 +283,13 @@ export default {
     decodedBirthday() {
       return parse(this.birthday, "dd.MM.yyyy", new Date());
     },
+    showForeignPassportInfo() {
+      return (
+        Boolean(this.citizenship) &&
+        Boolean(this.citizenship.value) &&
+        this.citizenship.value.id === 8604
+      );
+    },
   },
   watch: {
     searchInput(v) {
@@ -283,9 +299,6 @@ export default {
       }
 
       this.updateCitizenshipItemsDebounced();
-    },
-    rules(v) {
-      console.log({ v });
     },
   },
   methods: {
@@ -308,8 +321,6 @@ export default {
     },
     submit() {
       const result = this.validate();
-
-      console.log({ result });
 
       const filteredData = Object.keys(this.$data)
         .filter((key) => !!this.$data[key])
@@ -387,6 +398,11 @@ export default {
           () => isValid(this.decodedBirthday) || "Некорректная дата",
         ],
       };
+
+      Object.keys(this.$refs).forEach((f) => {
+        console.log(f);
+        this.$refs[f].validate(true);
+      });
 
       return !!Object.keys(this.valid).length && this.$refs.form.validate();
     },
