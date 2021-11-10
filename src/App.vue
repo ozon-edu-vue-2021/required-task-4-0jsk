@@ -9,7 +9,7 @@
               <v-text-field
                 label="Фамилия"
                 required
-                validate-on-blur
+                @focus="clearRules('lastname')"
                 :rules="rules.lastname"
                 v-model="lastname"
               />
@@ -18,15 +18,16 @@
               <v-text-field
                 label="Имя"
                 required
-                validate-on-blur
-                v-model="firstname"
+                @focus="clearRules('firstname')"
                 :rules="rules.firstname"
+                v-model="firstname"
               />
             </v-col>
             <v-col cols="4">
               <v-text-field
                 label="Отчество"
                 required
+                @focus="clearRules('patronymic')"
                 v-model="patronymic"
                 :rules="rules.patronymic"
               />
@@ -39,7 +40,7 @@
                 v-mask="'##.##.####'"
                 placeholder="дд.мм.гггг"
                 required
-                validate-on-blur
+                @focus="clearRules('birthday')"
                 :rules="rules.birthday"
                 v-model="birthday"
               />
@@ -50,8 +51,8 @@
               <v-text-field
                 label="E-mail"
                 required
+                @focus="clearRules('email')"
                 v-model="email"
-                validate-on-blur
                 :rules="rules.email"
               />
             </v-col>
@@ -71,9 +72,8 @@
               <v-autocomplete
                 label="Гражданство"
                 :rules="rules.required"
-                validate-on-blur
-                v-model="citizenship"
-                auto-select-first
+                @change="(v) => (citizenship = getCitizenshipOption(v))"
+                :value="citizenship"
                 no-filter
                 :items="this.countries"
                 :search-input.sync="searchInput"
@@ -81,14 +81,18 @@
             </v-col>
           </v-row>
           <v-row
-            v-if="citizenship && citizenship.id && citizenship.id === 8604"
+            v-if="
+              Boolean(citizenship) &&
+              Boolean(citizenship.value) &&
+              citizenship.value.id === 8604
+            "
             class="mb-4"
           >
             <v-col cols="4">
               <v-text-field
                 label="Серия паспорта"
                 required
-                validate-on-blur
+                @focus="clearRules('code')"
                 :rules="rules.code"
                 v-model="passport.code"
               />
@@ -97,7 +101,7 @@
               <v-text-field
                 label="Номер паспорта"
                 required
-                validate-on-blur
+                @focus="clearRules('number')"
                 :rules="rules.number"
                 v-model="passport.number"
               />
@@ -105,6 +109,7 @@
             <v-col cols="4">
               <v-text-field
                 label="Дата выдачи"
+                :rules="rules.date"
                 v-mask="'##.##.####'"
                 placeholder="дд.мм.гггг"
                 required
@@ -117,8 +122,8 @@
               <v-col cols="6">
                 <v-text-field
                   label="Фамилия на латинице"
+                  @focus="clearRules('latinLastname')"
                   :rules="rules.latinLastname"
-                  validate-on-blur
                   required
                   v-model="additional.firstname"
                 />
@@ -126,8 +131,8 @@
               <v-col cols="6">
                 <v-text-field
                   label="Имя на латинице"
+                  @focus="clearRules('latinFirstname')"
                   :rules="rules.latinFirstname"
-                  validate-on-blur
                   required
                   v-model="additional.lastname"
                 />
@@ -141,7 +146,7 @@
               <v-col cols="4">
                 <v-text-field
                   label="Номер паспорта"
-                  validate-on-blur
+                  @focus="clearRules('number')"
                   :rules="rules.number"
                   required
                   v-model="passport.number"
@@ -150,8 +155,8 @@
               <v-col cols="4">
                 <v-select
                   label="Страна выдачи"
+                  @focus="clearRules('required')"
                   :rules="rules.required"
-                  validate-on-blur
                   v-model="passport.country"
                   :items="this.countriesOptions"
                 />
@@ -159,8 +164,8 @@
               <v-col cols="4">
                 <v-select
                   label="Тип паспорта"
+                  @focus="clearRules('required')"
                   :rules="rules.required"
-                  validate-on-blur
                   v-model="passport.type"
                   :items="this.passportTypesOptions"
                 />
@@ -181,7 +186,6 @@
               <v-text-field
                 label="Фамилия"
                 :rules="rules.required"
-                validate-on-blur
                 required
                 v-model="changed.lastname"
               />
@@ -189,7 +193,6 @@
             <v-col cols="6">
               <v-text-field
                 label="Имя"
-                validate-on-blur
                 required
                 :rules="rules.required"
                 v-model="changed.firstname"
@@ -221,10 +224,9 @@ import { isAfter, isValid, parse, startOfToday } from "date-fns";
 export default {
   name: "App",
   created() {
-    const countriesOptions = citizenships.map((v) => ({
-      text: v.nationality,
-      value: v,
-    }));
+    const countriesOptions = citizenships.map((v) =>
+      this.getCitizenshipOption(v)
+    );
 
     const passportTypesOptions = passportTypes.map((v) => ({
       text: v.type,
@@ -282,14 +284,22 @@ export default {
 
       this.updateCitizenshipItemsDebounced();
     },
+    rules(v) {
+      console.log({ v });
+    },
   },
   methods: {
+    getCitizenshipOption(cit) {
+      return {
+        text: cit.nationality,
+        value: cit,
+      };
+    },
     updateCitizenshipItemsDebounced() {
       clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
-        console.log("here");
         this.updateCitizenshipItems();
-      }, 2500); /* 500ms throttle */
+      }, 500);
     },
     updateCitizenshipItems() {
       this.countries = this.countries.filter((v) =>
@@ -297,7 +307,9 @@ export default {
       );
     },
     submit() {
-      this.validate();
+      const result = this.validate();
+
+      console.log({ result });
 
       const filteredData = Object.keys(this.$data)
         .filter((key) => !!this.$data[key])
@@ -309,16 +321,7 @@ export default {
           {}
         );
 
-      if (
-        this.firstname &&
-        this.lastname &&
-        this.patronymic &&
-        this.email &&
-        this.decodedBirthday &&
-        this.sex &&
-        this.citizenship &&
-        this.passport.number
-      ) {
+      if (result) {
         console.log({
           result: { ...filteredData, birthday: this.decodedBirthday },
         });
@@ -379,9 +382,16 @@ export default {
             latinRegex.test(v) || "Имя должно содержать только латинские буквы",
         ],
         required: [(v) => !!v || "Обязательно для заполнения"],
+        date: [
+          (v) => !!v || "Обязательно для заполнения",
+          () => isValid(this.decodedBirthday) || "Некорректная дата",
+        ],
       };
 
-      this.$refs.form.validate();
+      return !!Object.keys(this.valid).length && this.$refs.form.validate();
+    },
+    clearRules(key) {
+      this.$delete(this.rules, key);
     },
   },
 };
