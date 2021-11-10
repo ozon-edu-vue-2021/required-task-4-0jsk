@@ -9,6 +9,9 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "date-fns": "^2.25.0",
+    "fuse.js": "^6.4.6",
+    "v-mask": "^2.3.0",
     "vue": "^2.6.11",
     "vue-svg-loader": "^0.16.0",
     "vuedraggable": "^2.24.3",
