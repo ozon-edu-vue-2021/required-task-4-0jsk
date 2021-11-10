@@ -86,12 +86,12 @@
               />
             </v-col>
           </v-row>
-          <v-row v-if="!showForeignPassportInfo" class="mb-4">
+          <v-row v-if="showRussianPassportInfo" class="mb-4">
             <v-col cols="4">
               <v-text-field
                 label="Серия паспорта"
                 required
-                ref="code"
+                ref="rucode"
                 @focus="clearRules('code')"
                 :rules="rules.code"
                 v-model="passport.code"
@@ -101,7 +101,7 @@
               <v-text-field
                 label="Номер паспорта"
                 required
-                ref="number"
+                ref="runumber"
                 @focus="clearRules('number')"
                 :rules="rules.number"
                 v-model="passport.number"
@@ -114,12 +114,12 @@
                 v-mask="'##.##.####'"
                 placeholder="дд.мм.гггг"
                 required
-                ref="date"
+                ref="rudate"
                 v-model="passport.date"
               />
             </v-col>
           </v-row>
-          <div v-show="showForeignPassportInfo" class="mb-4">
+          <div v-show="!showRussianPassportInfo" class="mb-4">
             <v-row>
               <v-col cols="6">
                 <v-text-field
@@ -127,7 +127,7 @@
                   @focus="clearRules('latinLastname')"
                   :rules="rules.latinLastname"
                   required
-                  ref="latinLastname"
+                  ref="foreignLastname"
                   v-model="additional.lastname"
                 />
               </v-col>
@@ -137,7 +137,7 @@
                   @focus="clearRules('latinFirstname')"
                   :rules="rules.latinFirstname"
                   required
-                  ref="latinFirstname"
+                  ref="foreignFirstname"
                   v-model="additional.latinFirstname"
                 />
               </v-col>
@@ -153,7 +153,7 @@
                   @focus="clearRules('number')"
                   :rules="rules.number"
                   required
-                  ref="number"
+                  ref="foreignNumber"
                   v-model="passport.number"
                 />
               </v-col>
@@ -164,7 +164,7 @@
                   :rules="rules.required"
                   v-model="passport.country"
                   :items="this.countriesOptions"
-                  ref="country"
+                  ref="foreignCountry"
                 />
               </v-col>
               <v-col cols="4">
@@ -174,7 +174,7 @@
                   :rules="rules.required"
                   v-model="passport.type"
                   :items="this.passportTypesOptions"
-                  ref="type"
+                  ref="foreignType"
                 />
               </v-col>
             </v-row>
@@ -283,7 +283,7 @@ export default {
     decodedBirthday() {
       return parse(this.birthday, "dd.MM.yyyy", new Date());
     },
-    showForeignPassportInfo() {
+    showRussianPassportInfo() {
       return (
         Boolean(this.citizenship) &&
         Boolean(this.citizenship.value) &&
@@ -399,10 +399,16 @@ export default {
         ],
       };
 
-      Object.keys(this.$refs).forEach((f) => {
-        console.log(f);
-        this.$refs[f].validate(true);
-      });
+      Object.keys(this.$refs)
+        .filter((key) =>
+          this.showRussianPassportInfo
+            ? !key.includes("foreign")
+            : !key.includes("ru")
+        )
+        .forEach((f) => {
+          console.log(f);
+          this.$refs[f].validate(true);
+        });
 
       return !!Object.keys(this.valid).length && this.$refs.form.validate();
     },
