@@ -283,6 +283,9 @@ export default {
     decodedBirthday() {
       return parse(this.birthday, "dd.MM.yyyy", new Date());
     },
+    passportDate() {
+      return parse(this.passport.date, "dd.MM.yyyy", new Date());
+    },
     showRussianPassportInfo() {
       return (
         Boolean(this.citizenship) &&
@@ -395,22 +398,22 @@ export default {
         required: [(v) => !!v || "Обязательно для заполнения"],
         date: [
           (v) => !!v || "Обязательно для заполнения",
-          () => isValid(this.decodedBirthday) || "Некорректная дата",
+          () => isValid(this.passportDate) || "Некорректная дата",
         ],
       };
 
-      Object.keys(this.$refs)
+      const isFieldsValid = Object.keys(this.$refs)
         .filter((key) =>
           this.showRussianPassportInfo
             ? !key.includes("foreign")
             : !key.includes("ru")
         )
-        .forEach((f) => {
-          console.log(f);
-          this.$refs[f].validate(true);
-        });
+        .map((f) => this.$refs[f].validate())
+        .every((k) => k);
 
-      return !!Object.keys(this.valid).length && this.$refs.form.validate();
+      console.log({ isFieldsValid });
+
+      return isFieldsValid;
     },
     clearRules(key) {
       this.$delete(this.rules, key);

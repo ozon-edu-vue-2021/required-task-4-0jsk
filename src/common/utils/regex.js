@@ -1,4 +1,4 @@
-export const latinRegex = /\w+/gi;
+export const latinRegex = /[a-z]/gi;
 export const cyrillicRegex = /[а-яё]/gi;
 export const numbersRegex = /^\d+$/;
 export const emailRegex =
