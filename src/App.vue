@@ -2,7 +2,7 @@
   <v-app>
     <v-main>
       <v-container>
-        <v-form v-model="valid" ref="form" lazy-validation>
+        <v-form ref="_form">
           <h2>Личные данные</h2>
           <v-row class="mb-4">
             <v-col cols="4">
@@ -247,6 +247,8 @@ export default {
     this.passportTypesOptions = passportTypesOptions;
 
     this.citizenship = countriesOptions[0];
+
+    this.validate();
   },
   data: () => ({
     lastname: "",
@@ -370,19 +372,15 @@ export default {
           (v) => !!v || "Серия паспорта обязательна для заполнения",
           (v) => numbersRegex.test(v) || "Только цифры",
           (v) =>
-            this.citizenship?.id === 8604
-              ? v?.length === 4 ||
-                "Длина серии паспорта должна составлять 4 цифры"
-              : true,
+            Boolean(v?.length === 4) ||
+            "Длина серии паспорта должна составлять 4 цифры",
         ],
         number: [
           (v) => !!v || "Номер паспорта обязателен для заполнения",
           (v) => numbersRegex.test(v) || "Только цифры",
           (v) =>
-            this.citizenship?.id === 8604
-              ? v?.length === 6 ||
-                "Длина серии паспорта должна составлять 6 цифр"
-              : true,
+            Boolean(v?.length === 6) ||
+            "Длина серии паспорта должна составлять 6 цифр",
         ],
         latinLastname: [
           (v) => !!v || "Фамилия обязательна для заполнения",
@@ -402,16 +400,19 @@ export default {
         ],
       };
 
+      if (!this.valid) {
+        this.$refs._form.validate();
+      }
+
       const isFieldsValid = Object.keys(this.$refs)
+        .filter((key) => key !== "_form")
         .filter((key) =>
           this.showRussianPassportInfo
             ? !key.includes("foreign")
             : !key.includes("ru")
         )
-        .map((f) => this.$refs[f].validate())
+        .map((f) => this.$refs[f]?.validate())
         .every((k) => k);
-
-      console.log({ isFieldsValid });
 
       return isFieldsValid;
     },
