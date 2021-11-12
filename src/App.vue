@@ -192,7 +192,8 @@
             <v-col cols="6">
               <v-text-field
                 label="Фамилия"
-                :rules="rules.required"
+                :rules="rules.additionalLastName"
+                @focus="clearRules('additionalLastName')"
                 ref="changed.lastname"
                 required
                 v-model="changed.lastname"
@@ -202,7 +203,8 @@
               <v-text-field
                 label="Имя"
                 required
-                :rules="rules.required"
+                @focus="clearRules('additionalFirstName')"
+                :rules="rules.additionalFirstName"
                 ref="changed.firstname"
                 v-model="changed.firstname"
               />
@@ -309,7 +311,7 @@ export default {
   methods: {
     getCitizenshipOption(cit) {
       return {
-        text: cit.nationality,
+        text: cit?.nationality,
         value: cit,
       };
     },
@@ -321,7 +323,9 @@ export default {
     },
     updateCitizenshipItems() {
       this.countries = this.countries.filter((v) =>
-        v.text.toLowerCase().includes(this.searchInput.toLowerCase())
+        !this.searchInput
+          ? true
+          : v.text.toLowerCase().includes(this.searchInput?.toLowerCase())
       );
     },
     submit() {
@@ -388,6 +392,10 @@ export default {
             latinRegex.test(v) ||
             "Фамилия должна содержать только латинские буквы",
         ],
+        additionalLastName: [
+          (v) => !!v || "Фамилия обязательна для заполнения",
+        ],
+        additionalFirstName: [(v) => !!v || "Имя обязательна для заполнения"],
         latinFirstname: [
           (v) => !!v || "Имя обязательно для заполнения",
           (v) =>
