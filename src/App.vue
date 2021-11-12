@@ -400,7 +400,7 @@ export default {
         ],
       };
 
-      if (!this.valid) {
+      if (!this.valid && this.$refs._form) {
         this.$refs._form.validate();
       }
 
